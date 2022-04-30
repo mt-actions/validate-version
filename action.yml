@@ -1,0 +1,28 @@
+name: 'Validate the version of the package'
+description: 'Checks that the current version of package is correct relative to the last version tag'
+inputs:
+  comparison:
+    description: 'The comparison to be done. A string with a value in { >, <, ==, <=, >=, != }'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get last release version
+      id: get-release-version
+      uses: actions-ecosystem/action-get-latest-tag@v1
+      with:
+        semver_only: true
+
+    - name: Get current version
+      shell: bash
+      run: |
+        PKG_VERSION=$(poetry version --short)
+        echo "CURRENT_VERSION=v$PKG_VERSION" >> $GITHUB_ENV
+
+    - name: Assert version
+      uses: mt-actions/assert@v1.0.0
+      with:
+        comparison: ${{ inputs.comparison }}
+        expected: ${{ env.CURRENT_VERSION }}
+        actual: ${{ steps.get-release-version.outputs.tag }}
