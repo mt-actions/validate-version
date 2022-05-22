@@ -1,6 +1,9 @@
 name: 'Validate the version of the package'
 description: 'Checks that the current version of package is correct relative to the last version tag'
 inputs:
+  package_type:
+    description: 'The type of package to be published'
+    required: true
   comparison:
     description: 'The comparison to be done. A string with a value in { >, <, ==, <=, >=, != }'
     required: true
@@ -14,15 +17,14 @@ runs:
       with:
         semver_only: true
 
-    - name: Get current version
-      shell: bash
-      run: |
-        PKG_VERSION=$(poetry version --short)
-        echo "CURRENT_VERSION=v$PKG_VERSION" >> $GITHUB_ENV
+    - name: Get version
+      uses: mt-actions/get-version@v1.0.0
+      with:
+        package_type: ${{ inputs.package_type }}
 
     - name: Assert version
       uses: mt-actions/assert@v1.0.0
       with:
         comparison: ${{ inputs.comparison }}
-        expected: ${{ env.CURRENT_VERSION }}
+        expected: ${{ env.VERSION }}
         actual: ${{ steps.get-release-version.outputs.tag }}
