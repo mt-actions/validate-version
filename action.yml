@@ -18,6 +18,7 @@ runs:
         semver_only: true
 
     - name: Get version
+      id: get-current-version
       uses: mt-actions/get-version@v1.0.0
       with:
         package_type: ${{ inputs.package_type }}
@@ -26,5 +27,5 @@ runs:
       uses: mt-actions/assert@v1.0.0
       with:
         comparison: ${{ inputs.comparison }}
-        expected: ${{ env.VERSION }}
+        expected: ${{ steps.get-current-version.outputs.version }}
         actual: ${{ steps.get-release-version.outputs.tag }}
